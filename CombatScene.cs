@@ -16,6 +16,7 @@ namespace TurnBasedCombat
         
         private readonly List<Combatant> _combatants;
         
+        // TODO: this doesn't seem good, maybe create IObservable<Round> and IObserver<Round> that is passed in from the client?
         private Round _currentRound = Round.NullRound;
         public Round CurrentRound => _currentRound;
         
