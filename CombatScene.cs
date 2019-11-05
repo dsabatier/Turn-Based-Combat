@@ -13,61 +13,61 @@ namespace TurnBasedCombat
         /// Fired when the combat has been completed
         /// </summary>
         public event Action OnComplete = () => { };
+
+        /// <summary>
+        /// Fired when the combat has started
+        /// </summary>
+        public event Action OnStart = () => { };
+        
+        /// <summary>
+        /// Fired when a turn has started
+        /// </summary>
+        public event Action<Turn> OnTurnStart = (turn) => { };
+
+        /// <summary>
+        /// Fired when a turn has been completed
+        /// </summary>
+        public event Action OnTurnComplete = () => { };
         
         private readonly List<Combatant> _combatants;
-        
-        // TODO: this doesn't seem good, maybe create IObservable<Round> and IObserver<Round> that is passed in from the client?
-        private Round _currentRound = Round.NullRound;
-        public Round CurrentRound => _currentRound;
-        
-        private ConditionObserver _winConditionObserver;
-        private ConditionObservable _winConditionObservable;
+        private Turn _currentTurn;
         
         /// <summary>
         /// Create a new CombatScene
         /// </summary>
         /// <param name="combatants">A list of all combatants participating in this combat</param>
-        /// <param name="winConditionObservable">The observable condition required for this condition to be completed</param>
-        public CombatScene(List<Combatant> combatants, ConditionObservable winConditionObservable)
+        public CombatScene(List<Combatant> combatants)
         {
             _combatants = combatants;
-            _winConditionObservable = winConditionObservable;
         }
 
         /// <summary>
-        /// Begin this combat
+        /// Begin this encounter
         /// </summary>
-        public void StartCombat()
+        public void Start()
         {
-            _currentRound = new Round(_combatants, _winConditionObservable);
-            _currentRound.OnComplete += HandleRoundCompleted;
+            _currentTurn = new Turn(_combatants[0]);
 
-            _winConditionObserver = new ConditionObserver();
-            _winConditionObserver.OnCompleteEvent += HandleWinConditionCompleteEvent;
-            _winConditionObserver.OnNextEvent += HandleNextRoundEvent;
-
-            _winConditionObserver.Subscribe(_winConditionObservable);
+            _currentTurn.OnStart += HandleTurnStarted;
+            _currentTurn.OnComplete += HandleTurnComplete;
+            OnStart();
         }
 
-        private void HandleNextRoundEvent()
+        public void NextTurn()
         {
-            _currentRound = new Round(_combatants, _winConditionObservable);
-            _currentRound.OnComplete += HandleRoundCompleted;
-        }
-
-        private void HandleWinConditionCompleteEvent()
-        {
-            _currentRound.OnComplete -= HandleRoundCompleted;
-            _winConditionObserver.Unsubscribe();
             
-            _currentRound = null;
-
-            OnComplete();
+        }
+        
+        private void HandleTurnStarted()
+        {
+            OnTurnStart(_currentTurn);
+            _currentTurn.OnStart -= HandleTurnStarted;
         }
 
-        private void HandleRoundCompleted()
+        private void HandleTurnComplete()
         {
-            _currentRound.OnComplete -= HandleRoundCompleted;
+            OnTurnComplete();
+            _currentTurn.OnComplete -= HandleTurnComplete;
         }
     }
 }
