@@ -1,6 +1,6 @@
 using System;
 
-namespace TurnBasedCombat
+namespace TurnBasedEncounter
 {
     /// <summary>
     /// Add/Remove from the stat.  It will announce when it is depleted.

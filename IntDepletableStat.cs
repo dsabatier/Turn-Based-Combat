@@ -1,6 +1,6 @@
 using System;
 
-namespace TurnBasedCombat
+namespace TurnBasedEncounter
 {
     [Serializable]
     public class IntDepletableStat : DepletableStat<int>
@@ -22,7 +22,7 @@ namespace TurnBasedCombat
             if (Max < 0)
                 return;
             
-            _amount -= Math.Max(0, amount);
+            _amount = Math.Max(0, _amount - amount);
 
             if (_amount == 0)
                 RaiseDepletedEvent();

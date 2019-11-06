@@ -1,8 +1,8 @@
 using System;
 
-namespace TurnBasedCombat
+namespace TurnBasedEncounter
 {
-    public interface ICombatAction
+    public interface IEncounterAction
     {
         event Action OnSelected;
         void Select();
